@@ -8,20 +8,24 @@
 import Foundation
 import Combine
 
-protocol Iteractor {
+protocol Interactor {
     var networkClient: NetworkClient { get }
 }
 
-class UserInteractor: ObservableObject,  {
+protocol UserFetcher: Interactor {
+    func getUser(username: String) -> AnyPublisher<GitHubUser, Error>
+}
+
+class UserInteractor: ObservableObject, UserFetcher {
         
     let networkClient: NetworkClient
-    var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
     
-    init(networkClient: NetworkClientImp) {
+    init(networkClient: NetworkClient) {
         self.networkClient = networkClient
     }
     
-    func getUseby(username: String) -> AnyPublisher<GitHubUser, Error> {
+    func getUser(username: String) -> AnyPublisher<GitHubUser, Error> {
         
         return networkClient.performRequest(GetUserRequest(username: username))
             .tryMap { data, response in
@@ -60,9 +64,42 @@ class UserInteractor: ObservableObject,  {
                     return error // Pass through other errors (like decoding errors)
                 }
             }
-            .receive(on: DispatchQueue.main) // Deliver the final result on the main thread
+            .receive(on: RunLoop.main) // Deliver the final result on the main thread
             .eraseToAnyPublisher() // Erase the publisher type
         
         
+    }
+}
+
+// Helper extension to get the first value from a publisher as an async value
+// This is a common pattern when bridging single-value publishers to async/await.
+extension Publisher {
+    func firstValue() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var finished = false // Track if the publisher has finished
+
+            cancellable = self.sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        if !finished {
+                            // If finished without emitting a value, it's an unexpected scenario
+                            continuation.resume(throwing: URLError(.badServerResponse)) // Or a more appropriate error
+                        }
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                    cancellable?.cancel() // Cancel the subscription once completed or failed
+                },
+                receiveValue: { value in
+                    if !finished {
+                        finished = true // Mark as finished after receiving the first value
+                        continuation.resume(returning: value)
+                        cancellable?.cancel() // Cancel the subscription after the first value
+                    }
+                }
+            )
+        }
     }
 }

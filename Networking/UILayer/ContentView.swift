@@ -9,13 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var user: GitHubUser?
-    @StateObject private var interactor = UserInteractor(networkClient: NetworkClient())
+    @StateObject private var presentor = UserPresentor(interactor: UserInteractor(networkClient: NetworkClientImp()))
     
     var body: some View {
         VStack {
             
-            AsyncImage(url: URL(string: interactor.user?.avatarUrl ?? "")) { image in
+            AsyncImage(url: URL(string: presentor.user?.avatarUrl ?? "")) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -26,53 +25,23 @@ struct ContentView: View {
             }
             .frame(width: 120, height: 120)
             
-            Text(interactor.user?.login ?? "Login placeholder")
+            Text(presentor.user?.login ?? "Login placeholder")
                 .bold()
                 .font(.title3)
             
-            Text(interactor.user?.bio ?? "Bio placeholder")
+            Text(presentor.user?.bio ?? "Bio placeholder")
             
             Spacer()
+            
+            if let errorMessage = presentor.errorMessage {
+                Text(errorMessage)
+                    .font(.title)
+            }
 
         }
         .padding()
         .task {
-            do {
-//                user = try await getUser()
-                
-                 interactor.getUseby(username: "talspektor")
-            } catch GHError.invalidURL {
-                print("")
-            }
-        }
-    }
-    
-    func getUser() async throws -> GitHubUser {
-        let endpoint = "https://api.github.com/users/talspektor"
-        
-        do {
-            return try await getRequest(type: GitHubUser.self, endpoint: endpoint)
-        } catch {
-            throw error
-        }
-    }
-    
-    func getRequest<T: Decodable>(type: T.Type, endpoint: String) async throws -> T {
-        guard let url = URL(string: endpoint) else {
-            throw 
-        }
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw APIError.invalidResponse
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            return try decoder.decode(type.self, from: data)
-        } catch {
-            throw APIError.invalidData
+            await presentor.loadUser(username: "talspektor")
         }
     }
 }

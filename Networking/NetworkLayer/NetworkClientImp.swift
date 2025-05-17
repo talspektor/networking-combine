@@ -13,7 +13,7 @@ protocol NetworkClient {
 }
 
 // Generic Network Client using Combine
-public class NetworkClientImp {
+class NetworkClientImp: NetworkClient {
 
     private let session: URLSession
 
