@@ -10,15 +10,6 @@ import Combine
 import Foundation
 @testable import Networking
 
-// Assume these types are defined and accessible for testing from your main app target
-// by being marked with 'public' access control:
-// public enum NetworkError: Error { ... }
-// public protocol NetworkRequest { ... }
-// public enum HTTPMethod: String { ... }
-// public protocol NetworkClient { ... } // Assuming NetworkClient is a protocol
-// public class NetworkClientImp: NetworkClient { ... } // The class being tested
-// public struct GetUserRequest: NetworkRequest { ... } // Example NetworkRequest
-
 // MARK: - Mock URLSession Components
 
 // Mock URLSessionDataTask to control task behavior

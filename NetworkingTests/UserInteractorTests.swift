@@ -10,18 +10,6 @@ import Combine
 import Foundation
 @testable import Networking
 
-// Assume these types are defined and accessible for testing from your main app target
-// by being marked with 'public' access control:
-// public struct GitHubUser: Decodable, Identifiable { ... }
-// public enum NetworkError: Error { ... }
-// public protocol NetworkRequest { ... }
-// public enum HTTPMethod: String { ... }
-// public protocol UserFetcher { ... } // The protocol UserInteractor conforms to
-// public class UserInteractor: ObservableObject, UserFetcher { ... } // The class being tested
-// public struct ServerError: Decodable, Error { ... }
-// public protocol NetworkClient { ... } // The protocol NetworkClientImp conforms to
-// public struct GetUserRequest: NetworkRequest { ... } // The request type used by Interactor
-
 // Define a mock NetworkClient for testing UserInteractor
 // This mock conforms to the public NetworkClient protocol from your app target
 class MockNetworkClientForInteractor: NetworkClient {

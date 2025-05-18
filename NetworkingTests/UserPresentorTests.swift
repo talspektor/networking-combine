@@ -11,14 +11,6 @@ import Foundation
 import SwiftUI // Needed for ObservableObject and @Published
 @testable import Networking
 
-// Assume these types are defined and accessible for testing from your main app target
-// by being marked with 'public' access control:
-// public struct GitHubUser: Decodable, Identifiable { ... }
-// public enum NetworkError: Error { ... }
-// public protocol UserFetcher { ... } // The protocol UserPresentor depends on
-// public class UserPresentor: ObservableObject { ... } // The class being tested
-// public struct ServerError: Decodable, Error { ... }
-
 // Define a mock UserFetcher for testing UserPresentor
 // This mock conforms to the public UserFetcher protocol from your app target
 public class MockUserFetcher: UserFetcher {
