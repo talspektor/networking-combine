@@ -22,12 +22,12 @@ import SwiftUI // Needed for ObservableObject and @Published
 // Define a mock UserFetcher for testing UserPresentor
 // This mock conforms to the public UserFetcher protocol from your app target
 public class MockUserFetcher: UserFetcher {
-    public let networkClient: any Networking.NetworkClient
+    public let networkClient: any NetworkClient
     // Marked as public
     // This closure will be set by the test case to control the output of getUser
     var mockPublisher: ((String) -> AnyPublisher<GitHubUser, Error>)?
     
-    init(networkClient: any Networking.NetworkClient) {
+    init(networkClient: any NetworkClient) {
         self.networkClient = networkClient
     }
 

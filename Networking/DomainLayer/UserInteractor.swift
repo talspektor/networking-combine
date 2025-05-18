@@ -33,9 +33,8 @@ class UserInteractor: ObservableObject, UserFetcher {
                 print("Received response with status code: \(statusCode)")
                 
                 if (200...299).contains(statusCode) {
-                    // Decode the successful response
                     let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase // Assuming GitHub API uses snake_case
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
                     return try decoder.decode(GitHubUser.self, from: data)
                 } else {
                     // Handle server-side errors or other non-2xx status codes

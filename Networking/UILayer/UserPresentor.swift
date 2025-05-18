@@ -20,16 +20,16 @@ class UserPresentor: ObservableObject {
     }
 
     @MainActor func loadUser(username: String) async {
-        isLoading = true // Set loading state
-        errorMessage = nil // Clear previous errors
-        user = nil // Clear previous user data
+        isLoading = true
+        errorMessage = nil
+        user = nil
 
         do {
             let fetchedUser = try await interactor.getUser(username: username).firstValue() // Assuming firstValue helper exists
 
             print("Received user in Presenter (async): \(fetchedUser.login)")
-            self.user = fetchedUser // Update the @Published property
-            isLoading = false // Set loading state on successful completion
+            self.user = fetchedUser
+            isLoading = false
         } catch {
             // Handle errors from the publisher
             isLoading = false // Set loading state on failure
