@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CombineGenericNetworking
 
 struct ContentView: View {
     

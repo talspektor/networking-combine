@@ -25,8 +25,7 @@ class UserPresentor: ObservableObject {
         user = nil
 
         do {
-            let fetchedUser = try await interactor.getUser(username: username).firstValue() // Assuming firstValue helper exists
-
+            let fetchedUser = try await interactor.getUserCombine(username: username).firstValue() // Assuming firstValue helper exists
             print("Received user in Presenter (async): \(fetchedUser.login)")
             self.user = fetchedUser
             isLoading = false

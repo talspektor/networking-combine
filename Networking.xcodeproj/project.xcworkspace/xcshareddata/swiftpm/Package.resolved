@@ -1,0 +1,15 @@
+{
+  "originHash" : "c21217f6080aadd282afffe20270f82c9eb43a8f79726d23cba14ec41f6cf2bc",
+  "pins" : [
+    {
+      "identity" : "combine-networking-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/talspektor/combine-networking-spm",
+      "state" : {
+        "branch" : "more-generic-and-less-generic",
+        "revision" : "435bfdd52028a689bba8248b4bbedc6488ff20e9"
+      }
+    }
+  ],
+  "version" : 3
+}

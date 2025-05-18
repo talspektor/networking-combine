@@ -7,13 +7,14 @@
 
 import Foundation
 import Combine
+import CombineGenericNetworking
 
 protocol Interactor {
     var networkClient: NetworkClient { get }
 }
 
 protocol UserFetcher: Interactor {
-    func getUser(username: String) -> AnyPublisher<GitHubUser, Error>
+    func getUserCombine(username: String) -> AnyPublisher<GitHubUser, Error>
 }
 
 class UserInteractor: ObservableObject, UserFetcher {
@@ -25,48 +26,15 @@ class UserInteractor: ObservableObject, UserFetcher {
         self.networkClient = networkClient
     }
     
-    func getUser(username: String) -> AnyPublisher<GitHubUser, Error> {
-        
-        return networkClient.performRequest(GetUserRequest(username: username))
-            .tryMap { data, response in
-                let statusCode = response.statusCode
-                print("Received response with status code: \(statusCode)")
-                
-                if (200...299).contains(statusCode) {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
-                    return try decoder.decode(GitHubUser.self, from: data)
-                } else {
-                    // Handle server-side errors or other non-2xx status codes
-                    // Attempt to decode a custom server error if expected
-                    do {
-                        let serverError = try JSONDecoder().decode(ServerError.self, from: data)
-                        throw serverError // Throw the custom server error
-                    } catch {
-                        // If decoding the custom error fails, or it's a generic non-2xx,
-                        // throw a more general error including the status code.
-                        // You might want a more specific error type here.
-                        throw NSError(domain: "ServerError", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "Server returned status code \(statusCode)"])
-                    }
-                }
+    func getUserCombine(username: String) -> AnyPublisher<GitHubUser, Error> {
+        return networkClient.performRequestWithDecodedResponse(GetUserRequest(username: username))
+            .tryMap { decodedResponse, _ in
+                decodedResponse
             }
             .mapError { error in
-                // Map any upstream errors (NetworkError or decoding/server errors)
-                // to the Error type expected by the publisher.
-                // You can refine this mapping based on your error handling strategy.
-                if let networkError = error as? NetworkError {
-                    return networkError // Pass through NetworkClient's errors
-                } else if let serverError = error as? ServerError {
-                    return serverError // Pass through decoded server errors
-                }
-                else {
-                    return error // Pass through other errors (like decoding errors)
-                }
+                error
             }
-            .receive(on: RunLoop.main) // Deliver the final result on the main thread
-            .eraseToAnyPublisher() // Erase the publisher type
-        
-        
+            .eraseToAnyPublisher()
     }
 }
 

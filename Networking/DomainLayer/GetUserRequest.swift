@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import CombineGenericNetworking
 
 // Define a request for fetching a user (conforming to the updated NetworkRequest protocol)
 struct GetUserRequest: NetworkRequest {
     typealias Response = GitHubUser
+    typealias ServerError = Networking.ServerError
     
     let username: String
 
